@@ -91,11 +91,23 @@ public enum ContextualCursor
 	WOODCUTTING(SpriteID.SKILL_WOODCUTTING, "chop down", "chop-down", "chop", "cut", "hack");
 
 	private BufferedImage cursor;
+    private BufferedImage cursorOSRS;
 	private Integer spriteID;
 	private String[] actions;
+    private boolean hasOsrsVairant = false;
+
+    private boolean resourceExists(String resourcePath) {
+        return ContextualCursorPlugin.class.getResourceAsStream(resourcePath) != null;
+    }
 
 	ContextualCursor(String cursor_path, String ... actions)
 	{
+        String osrsPath = String.format("cursors/%s_osrs.png", cursor_path);
+        if (resourceExists(osrsPath)) {
+            this.cursorOSRS = ImageUtil.loadImageResource(ContextualCursorPlugin.class, osrsPath);
+            hasOsrsVairant = true;
+        }
+
 		this.cursor = ImageUtil.loadImageResource(ContextualCursorPlugin.class, String.format("cursors/%s.png", cursor_path));
 		this.actions = actions;
 	}
@@ -124,4 +136,11 @@ public enum ContextualCursor
 		//return cursorMap.get(action.toLowerCase());
 		return cursorMap.getOrDefault(action.toLowerCase(), GENERIC);
 	}
+
+    public BufferedImage getCursor(CursorSkin skin)
+    {
+        final boolean displayOSRS = skin == CursorSkin.OSRS && isHasOsrsVairant();
+        return displayOSRS ? getCursorOSRS() : getCursor();
+    }
+
 }
